@@ -16,7 +16,7 @@ Test Client,30000,INV-003,2026-11-01
 st.download_button("📥 Download Sample CSV Format", sample_csv, "sample_invoices.csv", "text/csv")
 st.info("Your CSV needs columns: client_name, amount, invoice_no, date")
 
-uploaded = st.file_uploader("Upload CSV file", type=["csv"])
+uploaded = st.file_uploader("Upload CSV file"
 
 if uploaded:
     df = pd.read_csv(uploaded)
