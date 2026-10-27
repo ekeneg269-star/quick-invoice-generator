@@ -31,7 +31,14 @@ def create_invoice_pdf(client, amount, inv_no, date):
     pdf.ln(10)
     pdf.set_font("Arial", "", 10)
     pdf.cell(0, 10, "Thank you for your business!", ln=True, align="C")
-    return pdf.output(dest='S').encode('latin1')
+    out = pdf.output(dest='S')
+    # Fix for new fpdf2 version
+    if isinstance(out, str):
+        return out.encode('latin1')
+    elif isinstance(out, bytearray):
+        return bytes(out)
+    else:
+        return out
 
 uploaded = st.file_uploader("Upload CSV file")
 
