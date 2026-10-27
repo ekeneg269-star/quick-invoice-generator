@@ -12,7 +12,7 @@ John Doe,50000,INV-001,5/16/2026
 Jane Smith,75000,INV-002,5/11/2026
 Test Client,30000,INV-003,11/1/2026"""
 
-st.download_button("📄 Download Sample CSV Format", sample_data, "sample_invoices.csv", "text/csv")
+st.download_button("Download Sample CSV Format", sample_data, "sample_invoices.csv", "text/csv")
 st.info("Your CSV needs: client_name, amount, invoice_no, date")
 
 def create_invoice_pdf(client, amount, inv_no, date):
@@ -38,10 +38,10 @@ uploaded = st.file_uploader("Upload CSV file")
 if uploaded is not None:
     try:
         df = pd.read_csv(uploaded)
-        st.success(f"✅ Loaded {len(df)} clients!")
+        st.success(f"Loaded {len(df)} clients!")
         st.dataframe(df)
 
-        if st.button("🔥 Generate & Download Invoices"):
+        if st.button("Generate and Download Invoices"):
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w") as zip_file:
                 for idx, row in df.iterrows():
@@ -54,4 +54,31 @@ if uploaded is not None:
                     zip_file.writestr(f"{row.get('client_name','Client')}_{row.get('invoice_no','')}.pdf", pdf_bytes)
             
             st.balloons()
-            st.success("🎉 Invoices Ready! Download below
+            st.success("Invoices Ready! Download below:")
+
+            for idx, row in df.iterrows():
+                pdf_bytes = create_invoice_pdf(
+                    str(row.get('client_name', 'Client')),
+                    str(row.get('amount', 0)),
+                    str(row.get('invoice_no', f'INV-{idx}')),
+                    str(row.get('date', ''))
+                )
+                st.download_button(
+                    f"Download {row.get('client_name','Client')} - {row.get('invoice_no','')}",
+                    pdf_bytes,
+                    f"{row.get('client_name','Client')}_{row.get('invoice_no','')}.pdf",
+                    "application/pdf",
+                    key=f"dl_{idx}"
+                )
+
+            st.download_button(
+                "Download ALL as ZIP",
+                zip_buffer.getvalue(),
+                "all_invoices.zip",
+                "application/zip"
+            )
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+else:
+    st.write("Waiting for CSV upload...")
